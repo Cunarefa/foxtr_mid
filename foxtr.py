@@ -1,4 +1,6 @@
+import itertools
 import json
+import os
 
 import requests
 from bs4 import BeautifulSoup
@@ -35,6 +37,14 @@ def get_items_list(html):
     return lst
 
 
+def uniq_name():
+    basename = itertools.count()
+    actual_name = f'{basename}.json'
+    while os.path.exists(actual_name):
+        actual_name = f'{next(basename)}.json'
+    return actual_name
+
+
 def fetchReviews(html):
     soup = BeautifulSoup(html.text, 'html.parser')
     items = soup.find_all('div', class_='product-comment__item')
@@ -44,9 +54,8 @@ def fetchReviews(html):
         'text': item.find('div', class_='product-comment__item-text').get_text(strip=True)
     }, items))
 
-    # for page in range(1, 10):
-    #     with open(f'{page}.json', 'w') as file:
-    #         json.dump(lst, file, indent=2)
+    with open(f'{uniq_name()}', 'w') as file:
+        json.dump(lst, file, indent=2)
 
     return lst
 
